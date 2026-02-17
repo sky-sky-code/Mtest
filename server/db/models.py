@@ -51,7 +51,6 @@ class Job(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False,
                                                  default=lambda: datetime.now(timezone.utc))
 
-    #TODO добавить кто сделать approve и когда
     status: Mapped[Status] = mapped_column(Enum(Status, name='job_status'), nullable=False, default=Status.NEW)
     command_type: Mapped[CommandType] = mapped_column(Enum(CommandType, name='job_command_type'), nullable=False)
     approval_state: Mapped[ApprovalState] = mapped_column(Enum(ApprovalState, name='job_approval_state'), nullable=True)
