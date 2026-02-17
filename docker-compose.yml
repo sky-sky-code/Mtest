@@ -1,0 +1,88 @@
+version: '3.9'
+
+x-app-env: &app-env
+    REDIS_URL: "redis://redis:6379/0"
+    POSTGRES_URL: "postgresql://app:app@postgres:5432/app"
+    MAX_RETRIES: 3
+    BASE_BACKOFF: 2
+    MAX_BACKOFF: 30
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - mtest
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - mtest
+
+  server_api:
+    build:
+      context: server/
+    environment:
+      <<: *app-env
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+      - postgres
+    working_dir: /app
+    command: ["sh", "-c", "poetry run python main.py"]
+    restart: unless-stopped
+    networks:
+      - mtest
+
+  worker:
+    build:
+      context: server/
+    environment:
+      <<: *app-env
+    depends_on:
+      - redis
+      - postgres
+    command: ["sh", "-c", "poetry run celery -A worker.celery_app:celery_app worker -l INFO -Q default"]
+    restart: unless-stopped
+    networks:
+      - mtest
+
+
+  beat:
+    build:
+      context: server/
+    environment:
+      <<: *app-env
+    depends_on:
+      - redis
+      - postgres
+    command: ["sh","-c", "poetry run celery -A worker.celery_app:celery_app beat -l INFO --schedule /var/lib/celery/celerybeat-schedule"]
+    volumes:
+      - beat_data:/var/lib/celery
+    restart: unless-stopped
+    networks:
+      - mtest
+
+
+networks:
+  mtest:
+    driver: bridge
+
+volumes:
+  pg_data:
+  redis_data:
+  beat_data:
