@@ -111,7 +111,7 @@ async def approve_job(job_id: str):
         return {"job_id": str(job.uid), "approval_state": "APPROVED", "enqueued": True}
 
 
-@router.post("/jobs/{job_id}/reject")
+@router.post("/jobs/{job_id}/reject/")
 async def reject_job(job_id: str):
     with Session.begin() as session:
         job = session.execute(
@@ -173,7 +173,7 @@ async def get_all_jobs(limit: int = 50, offset: int = 0):
     return result
 
 
-@router.get("/jobs/{job_id}")
+@router.get("/jobs/{job_id}/")
 async def get_job(job_id: uuid.UUID):
     with Session.begin() as session:
         job = session.execute(select(Job).where(Job.uid == job_id)).scalars().one_or_none()

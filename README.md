@@ -102,3 +102,55 @@ Postgres advisory lock на уровне Host
 - другие ошибки → retry до лимита, затем Execution.status = FAILED/FAILURE
 
 Это снижает нагрузку при массовых сбоях и повышает шанс успешного выполнения при временных проблемах.
+
+## Docs
+Запуск:
+
+``
+docker-compose up
+``
+
+
+SwaggerUI: http://127.0.0.1:8081/docs
+
+CURL:
+- /webhook/jobs
+```
+curl -X 'POST' \
+  'http://127.0.0.1:8081/webhook/jobs/' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "external_id": "6",
+  "command_type": "PING",
+  "selector": {
+    "hostnames": ["host_3"]
+  },
+  "payload": {
+    "additionalProp1": {}
+  }
+}'
+```
+
+- /jobs/{job_id}/approve/
+```
+curl -X 'POST' \
+  'http://localhost:8081/jobs/0af5e1a3-dc17-444f-a812-1e106b07d868/approve/' \
+  -H 'accept: application/json' \
+  -d ''
+```
+
+- /jobs/{job_id}/reject/
+```
+curl -X 'POST' \
+  'http://localhost:8081/jobs/0af5e1a3-dc17-444f-a812-1e106b07d868/approve/' \
+  -H 'accept: application/json' \
+  -d ''
+```
+
+- /jobs/{job_id}/
+```
+curl -X 'GET' \
+  'http://127.0.0.1:8081/jobs/b61750d0-77f3-4c2c-b888-df62463b822b' \
+  -H 'accept: application/json'
+```
