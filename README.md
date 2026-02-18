@@ -131,6 +131,24 @@ curl -X 'POST' \
   }
 }'
 ```
+- all_hosts
+```
+curl -X 'POST' \
+  'http://127.0.0.1:8081/webhook/jobs/' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "external_id": "6",
+  "command_type": "PING",
+  "selector": {
+    "all": true
+  },
+  "payload": {
+    "additionalProp1": {}
+  }
+}'
+```
+
 
 - /jobs/{job_id}/approve/
 ```
